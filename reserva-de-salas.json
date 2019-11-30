@@ -1,0 +1,23 @@
+{
+  "ambientes": [
+    {
+      "nome": "kdwla",
+      "lotacao": "21",
+      "descricao": "124",
+      "id": 2
+    }
+  ],
+  "usuarios": [
+    {
+      "nome": "Oe",
+      "codigo": "12312",
+      "id": 1
+    },
+    {
+      "nome": "Zequinha",
+      "codigo": "C4R10C4",
+      "id": 2
+    }
+  ],
+  "reservas": []
+}
