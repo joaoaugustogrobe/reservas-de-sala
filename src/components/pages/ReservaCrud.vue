@@ -155,15 +155,15 @@ export default {
   },
   methods: {
     overlap(x1, x2, y1, y2){
-      isOverlap = Math.max(x1,y1) <= Math.min(x2,y2)
+      console.log(`x1: ${new Date(x1)}; y1: ${new Date(y1)}; x2: ${new Date(x2)}; y2: ${new Date(y2)}; `)
+      let isOverlap = (Math.max(x1,y1) <= Math.min(x2,y2))
       console.log(isOverlap)
       return isOverlap
     },
     ajustarHorario(data, horario){
       horario.setDate(data.getDate())
-      horario.setYear(data.getYear())
+      horario.setYear(data.getFullYear())
       horario.setMonth(data.getMonth())
-      console.log(horario)
     },
     gerarVetor(minimo, maximo, intervalo){
       let array = []
@@ -197,11 +197,16 @@ export default {
       let usuarioSelecionadoId = this.getUsuarioSelecionadoId()
       let ambienteSelecionadoId = this.getAmbienteSelecionadoId()
       if (this.validarCampos()) {
+        //let timeInicioValue = Object.assign({}, this.timeInicio) //Feito isso pois estava atribuindo a referencia
+        //let timeFinalValue = JSON.parse(JSON.stringify(this.timeFinal))
+        //let timeFinal = this.timeFinal + ""
+        //let timeInicio = this.timeInicio + ""
+        console.dir(this.timeInicio)
         let reserva = {
           usuario: usuarioSelecionadoId,
           ambiente: ambienteSelecionadoId,
-          timeInicio: this.timeInicio,
-          timeFinal: this.timeFinal,
+          timeInicio: new Date(this.timeInicio),
+          timeFinal: new Date(this.timeFinal)
         };
         //return;
         axios.post("http://localhost:3000/reservas", reserva).then(res=>{
@@ -260,19 +265,23 @@ export default {
       let timeFinal = this.timeFinal
       let usuarioSelecionadoId = this.getUsuarioSelecionadoId()
       let ambienteSelecionadoId = this.getAmbienteSelecionadoId()
-      for (const evento in this.list) {
-        console.log(evento)
-        console.log(ambienteSelecionadoId)
-        if(evento.ambiente == ambienteSelecionadoId)
+
+      let emUso = false;
+      this.list.forEach(evento => {
+        if(evento.ambiente == ambienteSelecionadoId){
+          console.log(evento.timeInicio)
           if(this.overlap(evento.timeInicio.getTime(), evento.timeFinal.getTime(), timeInicio.getTime(), timeFinal.getTime())){
-          document.getElementById("form-timeFinal").parentNode.classList.add("is-invalid");
-          this.timeFinalError = "Este ambiente já esta reservado nesse horário."
-          console.log("Em uso")
-          return false
+            document.getElementById("form-timeFinal").parentNode.classList.add("is-invalid");
+            this.timeFinalError = "Este ambiente já esta reservado nesse horário."
+            console.log("Em uso")
+            emUso = true;
+            return false
           }
-          document.getElementById("form-timeFinal").parentNode.classList.remove("is-invalid");
-      }
-      alert("deu ruim")
+        }
+        document.getElementById("form-timeFinal").parentNode.classList.remove("is-invalid");
+      }, this)
+      if(emUso == true) return false;
+
       return true;
     },
     limpaCampos() {
