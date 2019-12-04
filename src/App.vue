@@ -36,6 +36,7 @@ export default {
   --header-height: 100px;
   --asside-width: 250px;
   --footer-height: 40px;
+  --menu-top-height: 100px;
   --shadow: 0 2px 23px 0 rgba(0, 0, 0, 0.1), 0 2px 49px 0 rgba(0, 0, 0, 0.06);
 }
 
@@ -44,6 +45,7 @@ export default {
   font-family: "Montserrat", sans-serif;
   margin: 0;
 }
+
 
 .app {
   margin: 0px;
@@ -58,9 +60,9 @@ export default {
     "logo  header"
     "menu  content"
     "menu  footer";
-
   height: 100vh;
 }
+
 
 aside.logo {
   grid-area: logo;
@@ -81,5 +83,39 @@ main.content {
 
 footer.footer {
   grid-area: footer;
+}
+
+@media (max-width: 992px) {
+  .app {
+    grid-template-rows:
+      var(--header-height)
+      var(--menu-top-height)
+      1fr
+      var(--footer-height);
+    grid-template-columns:
+      var(--asside-width) 1fr;
+    grid-template-areas: 
+      "logo header"
+      "menu menu"
+      "content content"
+      "footer footer" 
+  }
+}
+
+
+@media (max-width: 576px) {
+  .app {
+    grid-template-rows:
+      var(--logo-height)
+      var(--menu-top-height)
+      1fr
+      var(--footer-height);
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "logo"
+      "menu"
+      "content"
+      "footer" 
+  }
 }
 </style>

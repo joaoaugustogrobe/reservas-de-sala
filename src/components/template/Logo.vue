@@ -28,4 +28,17 @@ aside.logo img{
   padding: 0px 15px;
   width: 100%;
 }
+
+@media (max-width: 576px) {
+  aside.logo a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  aside.logo img{
+    width: 50%;
+    justify-content: center
+    
+  }
+}
 </style>

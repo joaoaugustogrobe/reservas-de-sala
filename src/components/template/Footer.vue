@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <span>Desenvolvido com <i class="fa fa-heart text-danger"></i> por <strong>João Augusto Grobe Castilho</strong> e <strong>Pedro SOBRENOME</strong>.</span>
+    <span>Desenvolvido com <i class="fa fa-heart text-danger"></i> por <strong>João Augusto Grobe Castilho</strong> e <strong>Pedro Loureiro</strong>.</span>
   </footer>
 </template>
 

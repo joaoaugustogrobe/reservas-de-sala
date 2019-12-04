@@ -42,4 +42,19 @@ nav.menu-area{
     background-color: var(--color-background-dark)
 }
 
+@media (max-width: 992px) {
+  .menu-area{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+    justify-content: space-around;
+  }
+  .menu-area a{
+    display: inline;
+    padding: 10px;
+    margin: 0px;
+
+  }
+}
 </style>

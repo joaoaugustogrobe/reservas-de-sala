@@ -25,6 +25,7 @@
         <div class="col-12 col-md-6">
           <div class="form-group">
             <label for="nome">Ambiente*</label>
+            {{ambiente}}
             <select class="form-control" ref="form-ambiente" v-model="ambiente">
               <option
                 v-for="ambiente in ambientes"
@@ -78,15 +79,19 @@
         <table class="table">
           <thead>
             <tr>
-              <th scope="col" style="width:60%">Nome</th>
-              <th scope="col" style="width:20%">Lotacao máxima</th>
+              <th scope="col" style="width:20%">Usuário</th>
+              <th scope="col" style="width:20%">Ambiente</th>
+              <th scope="col" style="width:50%">Data</th>
               <th scope="col" style="width:10%">Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(ambiente, index) in list" v-bind:index="index" v-bind:key="ambiente.id">
-              <td>{{ambiente.nome}}</td>
-              <td>{{ambiente.lotacao}}</td>
+            <tr v-for="(reserva, index) in list" v-bind:index="index" v-bind:key="reserva.id">
+              <td>{{obterUsuarioPeloId(reserva.usuario).nome}}</td>
+              <td>{{obterAmbientePeloId(reserva.ambiente).nome}}</td>
+              <td>Dia {{reserva.timeInicio.toLocaleDateString()}} às {{reserva.timeInicio.getHours()}}:{{reserva.timeInicio.getMinutes()}}
+                até às {{reserva.timeFinal.getHours()}}:{{reserva.timeFinal.getMinutes()}}
+              </td>
               <td class="d-flex justify-content-end">
                 <button class="btn btn-warning mx-3" v-on:click="editar">
                   <i class="fa fa-pen"></i>
@@ -134,6 +139,20 @@ export default {
         alert("Não foi possivel carregar as informações dos usuarios.");
         console.log(e);
     });
+    axios
+      .get("http://localhost:3000/reservas")
+      .then(res => {
+        console.log(res.data)
+        this.list = res.data;
+        this.list.forEach(reserva => {
+          reserva.timeInicio = new Date(reserva.timeInicio)
+          reserva.timeFinal = new Date(reserva.timeFinal)
+        })
+      })
+      .catch(e => {
+        alert("Não foi possivel carregar as informações de reservas.");
+        console.log(e);
+    });
   },
   mounted(){
     const dataForm = document.getElementById('form-data')
@@ -159,6 +178,14 @@ export default {
       let isOverlap = (Math.max(x1,y1) <= Math.min(x2,y2))
       console.log(isOverlap)
       return isOverlap
+    },
+    obterUsuarioPeloId(id){
+      let user =  this.usuarios.find(usuario => usuario.id == id)
+      return user || {nome: "USUÁRIO REMOVIDO"}
+    },
+    obterAmbientePeloId(id){
+      let ambiente = this.ambientes.find(ambiente => ambiente.id == id)
+      return ambiente || {nome: "AMBIENTE REMOVIDO"}
     },
     ajustarHorario(data, horario){
       horario.setDate(data.getDate())
@@ -197,11 +224,6 @@ export default {
       let usuarioSelecionadoId = this.getUsuarioSelecionadoId()
       let ambienteSelecionadoId = this.getAmbienteSelecionadoId()
       if (this.validarCampos()) {
-        //let timeInicioValue = Object.assign({}, this.timeInicio) //Feito isso pois estava atribuindo a referencia
-        //let timeFinalValue = JSON.parse(JSON.stringify(this.timeFinal))
-        //let timeFinal = this.timeFinal + ""
-        //let timeInicio = this.timeInicio + ""
-        console.dir(this.timeInicio)
         let reserva = {
           usuario: usuarioSelecionadoId,
           ambiente: ambienteSelecionadoId,
@@ -273,7 +295,6 @@ export default {
           if(this.overlap(evento.timeInicio.getTime(), evento.timeFinal.getTime(), timeInicio.getTime(), timeFinal.getTime())){
             document.getElementById("form-timeFinal").parentNode.classList.add("is-invalid");
             this.timeFinalError = "Este ambiente já esta reservado nesse horário."
-            console.log("Em uso")
             emUso = true;
             return false
           }
@@ -285,9 +306,11 @@ export default {
       return true;
     },
     limpaCampos() {
-      this.nome = "";
-      this.lotacao = "";
-      this.descricao = "";
+      this.usuario = ""
+      this.ambiente = ""
+      this.data = null
+      this.timeInicio = null
+      this.timeFinal = null
       this.indexEdicao = -1;
     },
     obterDadosEvento(event){
@@ -295,25 +318,34 @@ export default {
       if(src.nodeName == "I")  src = src.parentNode //Garante que o src é o botão, e não o icone
       let row = src.parentNode.parentNode
       let index = row.attributes.index.value
-      let ambiente = this.list[index]
-      ambiente.index = index
-      return ambiente
+      let reserva = this.list[index]
+      reserva.data = reserva.timeInicio
+      reserva.index = index
+      console.dir(this.$refs["form-ambiente"])
+
+      this.usuario = 0
+      return reserva
     },
     editar(event){
-      let ambiente = this.obterDadosEvento(event)
-      this.indexEdicao = ambiente.index
-      this.nome = ambiente.nome
-      this.descricao = ambiente.descricao
-      this.lotacao = ambiente.lotacao
+      alert("Temporariamente Indisponivel!")
+      return;
+      let reserva = this.obterDadosEvento(event)
+      this.indexEdicao = reserva.index
+      this.usuario = reserva.usuario
+      this.data = reserva.data
+      this.ambiente = this.$refs["form-ambiente"][reserva.ambiente - 1].text
+      //this.$refs["form-ambiente"].selectedIndex = reserva.ambiente
+      this.timeInicio = reserva.timeInicio
+      this.timeFinal = reserva.timeFinal
     },
     remover(event){
-      let ambiente = this.obterDadosEvento(event)
+      let reserva = this.obterDadosEvento(event)
       let array = this.list
-      let index = ambiente.index
+      let index = reserva.index
       array.splice(index, 1);
       
-      axios.delete(`http://localhost:3000/ambientes/${ambiente.id}`).catch(e => {
-          alert("Não foi possivel salvar as informações do ambiente.");
+      axios.delete(`http://localhost:3000/reservas/${reserva.id}`).catch(e => {
+          alert("Não foi possivel salvar as informações da reserva.");
           console.log(e);
       });
       
